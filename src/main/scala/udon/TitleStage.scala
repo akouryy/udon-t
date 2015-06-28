@@ -33,30 +33,29 @@ object TitleStage extends PrimaryStage {
         spread = 0.25
       }
 
-      def title_text(c: Char) = new Text {
-        text = c.toString.toUpperCase
-        padding = Insets(10)
+      children = "udon".map(new TitleText(_))
+    }
+  }
+}
 
-        fill <== when(hover) choose Color.web("#FFFFFF") otherwise Color.web("#753329")
-        stroke <== when(hover) choose Color.web("#753329") otherwise Color.web("#00000000")
-        strokeWidth = 5
+class TitleText(c: Char) extends Text {
+  text = c.toString.toUpperCase
 
-        onMouseClicked = (ev: MouseEvent) => {
-          val num = ev.button match {
-            case MouseButton.NONE => None
-            case MouseButton.PRIMARY => Some(1)
-            case MouseButton.MIDDLE => None
-            case MouseButton.SECONDARY => Some(2)
-          }
-          num.map { n =>
-            val audioIn = AudioSystem.getAudioInputStream(new java.io.File(s"./resources/op/$c$n.wav"))
-            val clip = AudioSystem.getClip
-            clip.open(audioIn)
-            clip.start
-          }
-        }
-      }
-      children = "udon".map(title_text _)
+  fill <== when(hover) choose Color.web("#FFFFFF") otherwise Color.web("#753329")
+  stroke <== when(hover) choose Color.web("#753329") otherwise Color.web("#00000000")
+  strokeWidth = 5
+
+  onMouseClicked = (ev: MouseEvent) => {
+    val num = ev.button match {
+      case MouseButton.PRIMARY => Some(1)
+      case MouseButton.SECONDARY => Some(2)
+      case _ => None
+    }
+    num.map { n =>
+      val audioIn = AudioSystem.getAudioInputStream(new java.io.File(s"./resources/op/$c$n.wav"))
+      val clip = AudioSystem.getClip
+      clip.open(audioIn)
+      clip.start
     }
   }
 }
