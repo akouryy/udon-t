@@ -3,19 +3,23 @@ package net.akouryy.udon.view
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
+import scalafx.event.ActionEvent
 import scalafx.geometry.{Insets, Orientation, Pos}
 import scalafx.scene.Scene
-import scalafx.scene.control.{Alert, TextField}
+import scalafx.scene.control.{Alert, Button, TextField}
 import scalafx.scene.effect.DropShadow
 import scalafx.scene.input.{MouseButton, MouseEvent}
-import scalafx.scene.layout.{BorderPane, FlowPane, GridPane, HBox, Priority}
+import scalafx.scene.layout.{BorderPane, FlowPane, GridPane, ColumnConstraints, HBox, Priority}
 import scalafx.scene.media.{Media, MediaPlayer}
 import scalafx.scene.paint.Color
 import scalafx.scene.text.Text
+import scalafx.stage.Modality
 import scalafx.util.Duration
 
+import Function.const
 import java.net.URL
 import javax.sound.sampled._
+import sys.process._
 
 object TitleStage extends PrimaryStage { stage =>
   title = "udon"
@@ -44,16 +48,49 @@ object TitleStage extends PrimaryStage { stage =>
         alignment = Pos.Center
         margin = Insets(20)
         hgrow = Priority.Always
-        add(new TextField {
-          promptText = "API Key"
-          margin = Insets(0, 0, 5, 0)
+
+        columnConstraints = Array(30, 40, 30) map (x => new ColumnConstraints { percentWidth = x })
+
+        val key = new TextField {
+          promptText = "API Key (25 chars)"
+          margin = Insets(5, 0, 5, 0)
           hgrow = Priority.Always
-        }, 0, 0)
-        add(new TextField {
-          promptText = "API Secret"
-          margin = Insets(5, 0, 0, 0)
+          style <== when(focused || length === 25) choose "" otherwise "-fx-border-color: red;"
+        }
+        val secret = new TextField {
+          promptText = "API Secret (50 chars)"
+          margin = Insets(5, 0, 5, 0)
           hgrow = Priority.Always
-        }, 0, 1)
+          style <== when(focused || length === 50) choose "" otherwise "-fx-border-color: red;"
+        }
+        val authorize = new Button {
+          text = "authorize"
+          maxWidth = Double.MaxValue
+          margin = Insets(20, 0, 10, 0)
+          hgrow = Priority.Always
+
+          onAction = () => {
+            var message = ""
+            if(key.length.value != 25)
+              message += "API Key must have 25 characters.\n"
+            if(secret.length.value != 50)
+              message += "API Secret must have 50 characters.\n"
+
+            if(message.isEmpty)
+              "cmd /c start http://google.co.jp".run
+            else
+              new Alert(Alert.AlertType.Error) {
+                initModality(Modality.APPLICATION_MODAL)
+                title = "Authorization keys format error"
+                headerText = "Error"
+                contentText = message
+              }.showAndWait
+          }
+        }
+
+        add(key,        0, 0, 3, 1)
+        add(secret,     0, 1, 3, 1) // 50
+        add(authorize , 1, 2)
       }
     }
   }
