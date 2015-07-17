@@ -35,25 +35,26 @@ object TitleStage extends PrimaryStage { stage =>
                 -fx-focus-color: #FFFFFF;
               """
 
-      center = new HBox {
-        margin = Insets(20)
-        style = "-fx-font-size: 100pt;"
-        alignment = Pos.Center
-        effect = new DropShadow {
-          color = Color.web("#FFF9F9")
-          radius = 25
-          spread = 0.25
-        }
-
-        children = "udon".map(new TitleText(_))
-      }
-
-      bottom = new GridPane{
+      center = new GridPane {
         alignment = Pos.Center
         margin = Insets(20)
         hgrow = Priority.Always
 
         columnConstraints = Array(30, 40, 30) map (x => new ColumnConstraints { percentWidth = x })
+
+        val title = new HBox {
+          margin = Insets(20)
+          style = "-fx-font-size: 100pt;"
+          hgrow = Priority.Always
+          alignment = Pos.Center
+          effect = new DropShadow {
+            color = Color.web("#FFF9F9")
+            radius = 25
+            spread = 0.25
+          }
+
+          children = "udon".map(new TitleText(_))
+        }
 
         val key = new TextField {
           promptText = "API Key (25 chars)"
@@ -98,9 +99,10 @@ object TitleStage extends PrimaryStage { stage =>
           }
         }
 
-        add(key,        0, 0, 3, 1)
-        add(secret,     0, 1, 3, 1) // 50
-        add(authorize , 1, 2)
+        add(title,      0, 0, 3, 1)
+        add(key,        0, 1, 3, 1)
+        add(secret,     0, 2, 3, 1) // 50
+        add(authorize , 1, 3)
       }
     }
   }
