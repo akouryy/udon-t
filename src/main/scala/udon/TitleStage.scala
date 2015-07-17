@@ -6,7 +6,7 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.event.ActionEvent
 import scalafx.geometry.{Insets, Orientation, Pos}
 import scalafx.scene.Scene
-import scalafx.scene.control.{Alert, Button, TextField}
+import scalafx.scene.control.{Alert, Button, TextField, TextInputDialog}
 import scalafx.scene.effect.DropShadow
 import scalafx.scene.input.{MouseButton, MouseEvent}
 import scalafx.scene.layout.{BorderPane, FlowPane, GridPane, ColumnConstraints, HBox, Priority}
@@ -19,7 +19,7 @@ import scalafx.util.Duration
 import Function.const
 import java.net.URL
 import javax.sound.sampled._
-import sys.process._
+import net.akouryy.tw4s
 
 object TitleStage extends PrimaryStage { stage =>
   title = "udon"
@@ -29,14 +29,18 @@ object TitleStage extends PrimaryStage { stage =>
       vgrow = Priority.Always
       hgrow = Priority.Always
 
-      style = "-fx-background-color: #F9D1D3"
+      style = """
+                -fx-background-color: #F9D1D3;
+                -fx-accent: #753329;
+                -fx-focus-color: #FFFFFF;
+              """
 
       center = new HBox {
         margin = Insets(20)
         style = "-fx-font-size: 100pt;"
         alignment = Pos.Center
         effect = new DropShadow {
-          color = Color.web("#fff9f9")
+          color = Color.web("#FFF9F9")
           radius = 25
           spread = 0.25
         }
@@ -55,7 +59,7 @@ object TitleStage extends PrimaryStage { stage =>
           promptText = "API Key (25 chars)"
           margin = Insets(5, 0, 5, 0)
           hgrow = Priority.Always
-          style <== when(focused || length === 25) choose "" otherwise "-fx-border-color: red;"
+          style <== when(focused || length === 25) choose "-fx-text-box-border: transparent;" otherwise "-fx-border-color: red;"
         }
         val secret = new TextField {
           promptText = "API Secret (50 chars)"
@@ -76,15 +80,18 @@ object TitleStage extends PrimaryStage { stage =>
             if(secret.length.value != 50)
               message += "API Secret must have 50 characters.\n"
 
-            if(message.isEmpty)
-              "cmd /c start http://google.co.jp".run
-            else
+            if(message.isEmpty){
+              val a = new tw4s.Access(key.text.value, secret.text.value)
+              a.showPin()
+              new TextInputDialog().showAndWait.map(p => println(a fetchAccessToken p))
+            }else{
               new Alert(Alert.AlertType.Error) {
                 initModality(Modality.APPLICATION_MODAL)
                 title = "Authorization keys format error"
                 headerText = "Error"
                 contentText = message
               }.showAndWait
+            }
           }
         }
 
