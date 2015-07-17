@@ -83,7 +83,10 @@ object TitleStage extends PrimaryStage { stage =>
             if(message.isEmpty){
               val a = new tw4s.Access(key.text.value, secret.text.value)
               a.showPin()
-              new TextInputDialog().showAndWait.map(p => println(a fetchAccessToken p))
+              new TextInputDialog {
+                title = "PIN authorization"
+                headerText = "Input 7-digit PIN code shown after authorizing."
+              }.showAndWait.map(p => println(a fetchAccessToken p))
             }else{
               new Alert(Alert.AlertType.Error) {
                 initModality(Modality.APPLICATION_MODAL)
