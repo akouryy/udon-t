@@ -75,26 +75,27 @@ object TitleStage extends PrimaryStage { stage =>
           hgrow = Priority.Always
 
           onAction = () => {
-            var message = ""
+            var messages = List[String]()
             if(key.length.value != 25)
-              message += "API Key must have 25 characters.\n"
+              messages +:= "API Key must have 25 characters."
             if(secret.length.value != 50)
-              message += "API Secret must have 50 characters.\n"
+              messages +:= "API Secret must have 50 characters."
 
-            if(message.isEmpty){
-              val a = new tw4s.Access(key.text.value, secret.text.value)
-              a.showPin()
-              new TextInputDialog {
-                title = "PIN authorization"
-                headerText = "Input 7-digit PIN code shown after authorizing."
-              }.showAndWait.map(p => println(a fetchAccessToken p))
-            }else{
-              new Alert(Alert.AlertType.Error) {
-                initModality(Modality.APPLICATION_MODAL)
-                title = "Authorization keys format error"
-                headerText = "Error"
-                contentText = message
-              }.showAndWait
+            messages match {
+              case Nil =>
+                val a = new tw4s.Access(key.text.value, secret.text.value)
+                a.showPin()
+                new TextInputDialog {
+                  title = "PIN authorization"
+                  headerText = "Input 7-digit PIN code shown after authorizing."
+                }.showAndWait.map(p => println(a fetchAccessToken p))
+              case _ =>
+                new Alert(Alert.AlertType.Error) {
+                  initModality(Modality.APPLICATION_MODAL)
+                  title = "Authorization keys format error"
+                  headerText = "Error"
+                  contentText = messages mkString "\n"
+                }.showAndWait
             }
           }
         }
