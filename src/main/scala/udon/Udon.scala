@@ -4,5 +4,8 @@ import scalafx.Includes._
 import net.akouryy.sacalaba.Imports._
 
 object Udon extends JFXApp {
-  stage = view.TitleStage
+  stage = new PrimaryStage {
+    title = "udon"
+    scene = view.TitleScene
+  }
 }
