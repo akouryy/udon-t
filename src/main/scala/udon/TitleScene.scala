@@ -2,7 +2,7 @@ package net.akouryy.udon.view
 
 import scalafx.Includes._
 import net.akouryy.sacalaba.Imports._
-import Function.const
+import net.akouryy.lib._
 import java.net.URL
 import javax.sound.sampled._
 import net.akouryy.tw4s
@@ -43,7 +43,7 @@ object TitleScene extends Scene {
         promptText = "API Key (25文字)"
         margin = Insets(5, 0, 5, 0)
         hgrow = Priority.Always
-        style <== when(focused || length === 25) choose "-fx-text-box-border: transparent;" otherwise "-fx-border-color: red;"
+        style <== when(focused || length === 25) choose "" otherwise "-fx-border-color: red;"
       }
       val secret = new TextField {
         promptText = "API Secret (50文字)"
@@ -58,11 +58,10 @@ object TitleScene extends Scene {
         hgrow = Priority.Always
 
         onAction = () => {
-          var messages = List[String]()
-          if(key.length.value != 25)
-            messages +:= "API Key は 25 文字で指定してください。"
-          if(secret.length.value != 50)
-            messages +:= "API Secret は 50 文字で指定してください。"
+          var messages = List(
+            key.length.value == 25 |!> "API Key は 25 文字で指定してください。",
+            secret.length.value == 50 |!> "API Secret は 50 文字で指定してください。"
+          ).flatten
 
           messages match {
             case Nil =>
@@ -72,7 +71,7 @@ object TitleScene extends Scene {
                 new TextInputDialog {
                   title = "PIN 認証"
                   headerText = "認証後に表示される7桁の PIN コードを入力してください。"
-                }.showAndWait.map(p => println(a fetchAccessToken p))
+                }.showAndWait map (a fetchAccessToken _ map constL(a.twitter updateStatus "test"))
               } catch {
                 case e: tw4s.TwitterException =>
                   new Alert(Alert.AlertType.Error) {
