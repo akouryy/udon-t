@@ -1,21 +1,7 @@
 package net.akouryy.udon.view
 
 import scalafx.Includes._
-import scalafx.application.JFXApp
-import scalafx.application.JFXApp.PrimaryStage
-import scalafx.event.ActionEvent
-import scalafx.geometry.{Insets, Orientation, Pos}
-import scalafx.scene.Scene
-import scalafx.scene.control.{Alert, Button, TextField, TextInputDialog}
-import scalafx.scene.effect.DropShadow
-import scalafx.scene.input.{MouseButton, MouseEvent}
-import scalafx.scene.layout.{BorderPane, FlowPane, GridPane, ColumnConstraints, HBox, Priority}
-import scalafx.scene.media.{Media, MediaPlayer}
-import scalafx.scene.paint.Color
-import scalafx.scene.text.Text
-import scalafx.stage.Modality
-import scalafx.util.Duration
-
+import net.akouryy.sacalaba.Imports._
 import Function.const
 import java.net.URL
 import javax.sound.sampled._
@@ -57,19 +43,19 @@ object TitleStage extends PrimaryStage { stage =>
         }
 
         val key = new TextField {
-          promptText = "API Key (25 chars)"
+          promptText = "API Key (25文字)"
           margin = Insets(5, 0, 5, 0)
           hgrow = Priority.Always
           style <== when(focused || length === 25) choose "-fx-text-box-border: transparent;" otherwise "-fx-border-color: red;"
         }
         val secret = new TextField {
-          promptText = "API Secret (50 chars)"
+          promptText = "API Secret (50文字)"
           margin = Insets(5, 0, 5, 0)
           hgrow = Priority.Always
           style <== when(focused || length === 50) choose "" otherwise "-fx-border-color: red;"
         }
         val authorize = new Button {
-          text = "authorize"
+          text = "認証"
           maxWidth = Double.MaxValue
           margin = Insets(20, 0, 10, 0)
           hgrow = Priority.Always
@@ -77,23 +63,33 @@ object TitleStage extends PrimaryStage { stage =>
           onAction = () => {
             var messages = List[String]()
             if(key.length.value != 25)
-              messages +:= "API Key must have 25 characters."
+              messages +:= "API Key は 25 文字で指定してください。"
             if(secret.length.value != 50)
-              messages +:= "API Secret must have 50 characters."
+              messages +:= "API Secret は 50 文字で指定してください。"
 
             messages match {
               case Nil =>
                 val a = new tw4s.Access(key.text.value, secret.text.value)
-                a.showPin()
-                new TextInputDialog {
-                  title = "PIN authorization"
-                  headerText = "Input 7-digit PIN code shown after authorizing."
-                }.showAndWait.map(p => println(a fetchAccessToken p))
+                try {
+                  a.showPin()
+                  new TextInputDialog {
+                    title = "PIN 認証"
+                    headerText = "認証後に表示される7桁の PIN コードを入力してください。"
+                  }.showAndWait.map(p => println(a fetchAccessToken p))
+                } catch {
+                  case e: tw4s.TwitterException =>
+                    new Alert(Alert.AlertType.Error) {
+                      initModality(Modality.APPLICATION_MODAL)
+                      title = "APIキーエラー"
+                      headerText = "API Key または API Secret が不正です。"
+                      contentText = e.toString
+                    }.showAndWait
+                }
               case _ =>
                 new Alert(Alert.AlertType.Error) {
                   initModality(Modality.APPLICATION_MODAL)
-                  title = "Authorization keys format error"
-                  headerText = "Error"
+                  title = "認証フォーマットエラー"
+                  headerText = "エラー"
                   contentText = messages mkString "\n"
                 }.showAndWait
             }
