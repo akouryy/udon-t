@@ -7,10 +7,10 @@ package object lib {
 
   implicit class BooleanPlus(val b: Boolean) extends AnyVal {
     def |=>[A](a: =>A) = if(b) Some(a) else None
-    def |!>[A](a: =>A) = if(!b) Some(a) else None
+    def |!>[A](a: =>A) = !b |=> a
   }
 
   implicit class OptionPlus[A](val o: Option[A]) extends AnyVal {
-    def |!>[B](b: =>B) = o map (Right(_)) getOrElse Left(b)
+    def ||>[B](b: =>B) = o map (Right(_)) getOrElse Left(b)
   }
 }
